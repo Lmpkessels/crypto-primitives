@@ -1,7 +1,7 @@
 /// Boolean functions for RIMEMD-160.
 ///
 /// All 5 functions apply bitwise logic bit-by-bit on 32 bit words.
-/// All 5 functions will be used during the 5 rounds computation.
+/// All 5 functions will be used during the hash rounds computation.
 fn f1(x: u32, y: u32, z: u32) -> u32 {
     x ^ y ^ z
 }
