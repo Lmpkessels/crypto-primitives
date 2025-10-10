@@ -4,6 +4,10 @@ archive
 # Target output folder
 target
 
+# Future features
+UTXO
+padding_parsing
+
 # Structured guide
 structure.md
 plan.md
@@ -12,11 +16,10 @@ plan.md
 scratch.rs
 todo.md
 scratch
+scratch.py
 
 # Cheatsheet
 github.md
 
 # Lessons from
-NIST.FIPS.180-4.pdf
-wikipedia_sha2.pdf
-nist.fips.198-1.pdf
+pdf
