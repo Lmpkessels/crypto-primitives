@@ -4,10 +4,6 @@ archive
 # Target output folder
 target
 
-# Future features
-UTXO
-md4
-
 # Structured guide
 structure.md
 plan.md
@@ -17,9 +13,11 @@ scratch.rs
 todo.md
 scratch
 scratch.py
+striking-thoughts.md
 
 # Cheatsheet
 github.md
 
 # Lessons from
 pdf
+study_code
