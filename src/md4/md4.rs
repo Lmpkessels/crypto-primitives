@@ -1,7 +1,25 @@
 use crate::md4::{ f, g, h };
 use crate::utils::{ rotl, z };
 
-fn md4(m: Vec<[u32; 16]>) -> [u32; 4] {
+/// MD4: Message Digestion function.
+///
+/// # Parameters
+/// `m`: A vector of 512-bit message blocks, where each block is represented
+///      as an array of sixteen 32-bit words in little-endian order.
+///
+/// # Description
+/// - The algorithm performs three rounds of nonlinear functions, message word
+///   reordering, bit rotations, and modular additions.  
+/// - Each 512-bit message block updates the internal state `(A, B, C, D)`
+///   to produce a 128-bit digest.
+///
+/// # Returns
+/// A 128-bit digested hash key represented as an array of four 32-bit words.
+///
+/// # Reference
+/// Based on the MD4 RFC-1320 specification:
+/// [RFC-1320](https://datatracker.ietf.org/doc/html/rfc1320)
+fn md4(m: &[[u32; 16]]) -> [u32; 4] {
     // Four word buffer for message digestion.
     // Order: A, B, C, D.
     let mut four_word_bffr: [u32; 4] = [
@@ -39,7 +57,7 @@ fn md4(m: Vec<[u32; 16]>) -> [u32; 4] {
             
     let mut digest = [0u32; 4];
 
-    for x in &m {
+    for x in m {
         // Buffer: (A, B, C, D) safed as lower: (a, b, c, d) instead of:
         // (AA, BB, CC, DD).
         let mut a = four_word_bffr[0];
@@ -51,15 +69,18 @@ fn md4(m: Vec<[u32; 16]>) -> [u32; 4] {
             for j in 0..16 {
                 let (func, msg, cnst, shft) = match round {
                     0 => (
+                        // Round 1: nonlinear function F and no constant.
                         f(b, c, d), 
                         x[message_order[round][j]], 
                         0x00000000, 
                         round_rotation[round][j]),
                     1 => (
+                        // Round 2: nonlinear function G with 0x5A827999.
                         g(b, c, d), x[message_order[round][j]], 
                         0x5A827999, 
                         round_rotation[round][j]),
                     2 => (
+                        // Round 3: nonlinear function H with 0x6ED9EBA1.
                         h(b, c, d), 
                         x[message_order[round][j]], 
                         0x6ED9EBA1, 
@@ -68,11 +89,11 @@ fn md4(m: Vec<[u32; 16]>) -> [u32; 4] {
 
                 };
 
-                let mut t = z(z(z(a, func), msg), cnst);
+                let temp = a;
                 a = d;
                 d = c;
                 c = b;
-                b = rotl(t, shft) 
+                b = rotl(z(z(z(temp, func), msg), cnst), shft);
             }
 
         }
@@ -106,7 +127,7 @@ mod test {
         let msg = b"";
         let padded = little_endian_padd(msg); 
         let parsed = little_endian_pars(padded);
-        let result = md4(parsed);
+        let result = md4(&parsed);
 
         let expected = [
             0x31d6cfe0, 0xd16ae931, 0xb73c59d7, 0xe0c089c0
@@ -120,7 +141,7 @@ mod test {
         let msg = b"a";
         let padded = little_endian_padd(msg);
         let parsed = little_endian_pars(padded);
-        let result = md4(parsed);
+        let result = md4(&parsed);
 
         let expected = [
             0xbde52cb3, 0x1de33e46, 0x245e05fb, 0xdbd6fb24
@@ -134,7 +155,7 @@ mod test {
         let msg = b"abc";
         let padded = little_endian_padd(msg); 
         let parsed = little_endian_pars(padded);
-        let result = md4(parsed);
+        let result = md4(&parsed);
 
         let expected = [
             0xa448017a, 0xaf21d852, 0x5fc10ae8, 0x7aa6729d
@@ -149,7 +170,7 @@ mod test {
                     fghijklmnopqrstuvwxyz0123456789";
         let padded = little_endian_padd(msg);
         let parsed = little_endian_pars(padded);
-        let result = md4(parsed);
+        let result = md4(&parsed);
 
         let expected = [
             0x043f8582, 0xf241db35, 0x1ce627e1, 0x53e7f0e4
@@ -164,7 +185,7 @@ mod test {
                     1234567890123456789012345678901234567890";
         let padded = little_endian_padd(msg);
         let parsed = little_endian_pars(padded);
-        let result = md4(parsed);
+        let result = md4(&parsed);
 
         let expected = [
             0xe33b4ddc, 0x9c38f219, 0x9c3e7b16, 0x4fcc0536
