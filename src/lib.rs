@@ -3,3 +3,4 @@ pub mod hmac;
 pub mod utils;
 pub mod ripemd;
 pub mod padd_pars;
+pub mod md4;
