@@ -1,8 +1,27 @@
 use crate::md5::functions::{ f, g, h, i };
 use crate::utils::{ rotl, z };
 
-// Message digestion function with 4 working rounds.
+/// MD5: Message Digestion function.
+///
+/// # Parameters
+/// `m`: A vector of 512-bit message blocks, where each block is represented
+///      as an array of sixteen 32-bit words in little-endian order.
+///
+/// # Description
+/// - The algorithm performs four rounds of nonlinear functions, message word
+///   reordering, bit rotations, and modular additions.  
+/// - Each 512-bit message block updates the internal state `(A, B, C, D)`
+///   to produce a 128-bit digest.
+///
+/// # Returns
+/// A 128-bit digested hash key represented as an array of four 32-bit words.
+///
+/// # Reference
+/// Based on the MD5 RFC-1321 specification:
+/// [RFC-1321](https://www.rfc-editor.org/rfc/pdfrfc/rfc1321.txt.pdf)
 fn md5(m: &[[u32; 16]]) -> [u32; 4] {
+    // Four word buffer for message digestion.
+    // Order: A, B, C, D.
     let mut four_word_bffr: [u32; 4] = [
         0x67452301, // 0 = A
         0xefcdab89, // 1 = B
@@ -90,6 +109,9 @@ fn md5(m: &[[u32; 16]]) -> [u32; 4] {
         for round in 0..4 {
             for j in 0..16 {
                 let (func, msg, i_th, shft) = match round {
+                    // Round (1, 2, 3, 4): nonlinear function (F, G, H, I) 
+                    // + message block (x) + the it-h element of the table 
+                    // + the defined round rotations.
                     0 => (
                         f(b, c, d), 
                         x[message_order[round][j]], 
