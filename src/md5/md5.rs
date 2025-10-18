@@ -1,81 +1,5 @@
-/// Padding message in little endian order.
-pub fn little_endian_padd(msg: &[u8]) -> Vec<u8> {
-    let mut bytes: Vec<u8> = msg.to_vec();
-
-    // Append 1 for end of message.
-    // And all 0s to fill the block size.
-    bytes.push(0x80);
-    while bytes.len() % 64 != 56 {
-        bytes.push(0x00);
-    }
-
-    // Work with byte range.
-    let msg_len_bits = (msg.len() as u64) * 8;
-    for i in 0..8 {
-        bytes.push((msg_len_bits >> (i * 8)) as u8); // little-endian
-    }
-
-    bytes
-}
-
-/// Little-endian parsing stores the least significant byte (LSB).
-/// at the lowest memory address,
-/// and the most significant byte (MSB) at the highest memory address.
-pub fn little_endian_pars(bytes: Vec<u8>) -> Vec<[u32; 16]> {
-    let mut words: Vec<u32> = Vec::new();
-    let mut j = 0;
-    while j < bytes.len() {
-        let b0 = bytes[j] as u32;
-        let b1 = bytes[j + 1] as u32;
-        let b2 = bytes[j + 2] as u32;
-        let b3 = bytes[j + 3] as u32;
-
-        let word = (b0) | (b1 << 8) | (b2 << 16) | (b3 << 24);
-
-        words.push(word);
-
-        j += 4;
-    } 
-
-    let mut blocks: Vec<[u32; 16]> = Vec::new();
-    let mut k = 0;
-    while k < words.len() {
-        let mut block = [0u32; 16];
-        let mut l = 0;
-        while l < 16 {
-            block[l] = words[k + l];
-            
-            l += 1
-        }
-        blocks.push(block); 
-        k += 16;
-    }
-
-    blocks
-}
-
-/// Modular addition (x + y = (mod n))
-///
-/// Overflow is thrown away by the cast down to u32.
-pub fn z(x: u32, y: u32) -> u32 {
-    x.wrapping_add(y)
-}
-
-/// Rotate left (ROTL).
-///
-/// Rotate x left by n bits within a 32-bit word (wraps bits around).
-pub fn rotl(x: u32, n: u32) -> u32 {
-    // Normalize 0..31.
-    let n = n & 31;
-    // Use the complement count within the 32-bit word.
-    (x << n) | (x >> (32 - n))
-}
-
-// Four auxiliary function working on 32 bit words.
-pub fn f(x: u32, y: u32, z: u32) -> u32 { (x & y) | (!(x) & z) }
-pub fn g(x: u32, y: u32, z: u32) -> u32 { (x & z) | (y & !(z)) }
-pub fn h(x: u32, y: u32, z: u32) -> u32 { x ^ y ^ z }
-pub fn i(x: u32, y: u32, z: u32) -> u32 { y ^ (x | !(z)) }
+use crate::md5::functions::{ f, g, h, i };
+use crate::utils::{ rotl, z };
 
 // Message digestion function with 4 working rounds.
 fn md5(m: &[[u32; 16]]) -> [u32; 4] {
@@ -218,11 +142,84 @@ fn md5(m: &[[u32; 16]]) -> [u32; 4] {
     digest
 }
 
-fn main() {
-    let msg = b"abc";
-    let padded = little_endian_padd(msg);
-    let parsed = little_endian_pars(padded);
-    let hash = md5(&parsed);
+#[cfg(test)]
+mod new {
+    use super::*;
+    use crate::padd_pars::{
+        little_endian_padd, little_endian_pars
+    };
 
-    println!("{:0x?}", hash);
+
+    #[test]
+    fn md5_compute_empty_string() {
+        let msg = b"";
+        let padded = little_endian_padd(msg);
+        let parsed = little_endian_pars(padded);
+        let result = md5(&parsed);
+
+        let expected = [
+            0xd41d8cd9, 0x8f00b204, 0xe9800998, 0xecf8427e
+        ];
+
+        assert_eq!((expected), (result));
+    }
+
+    #[test]
+    fn md5_compute_one_a() {
+        let msg = b"a";
+        let padded = little_endian_padd(msg);
+        let parsed = little_endian_pars(padded);
+        let result = md5(&parsed);
+
+        let expected = [
+            0x0cc175b9, 0xc0f1b6a8, 0x31c399e2, 0x69772661
+        ];
+
+        assert_eq!((expected), (result));
+    }
+
+    #[test]
+    fn md5_compute_abc() {
+        let msg = b"abc";
+        let padded = little_endian_padd(msg);
+        let parsed = little_endian_pars(padded);
+        let result = md5(&parsed);
+
+        let expected = [
+            0x90015098, 0x3cd24fb0, 0xd6963f7d, 0x28e17f72
+        ];
+
+        assert_eq!((expected), (result));
+    }
+
+    #[test]
+    fn md5_compute_expenditure_next_second_block() {
+        let msg = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcde\
+                    fghijklmnopqrstuvwxyz0123456789";
+        let padded = little_endian_padd(msg);
+        let parsed = little_endian_pars(padded);
+        let result = md5(&parsed);
+
+        let expected = [
+            0xd174ab98, 0xd277d9f5, 0xa5611c2c, 0x9f419d9f
+        ];
+
+        assert_eq!((expected), (result));
+    }
+
+    #[test]
+    fn md5_compute_expenditure_into_next_block_with_all_numbers() {
+        let msg = b"123456789012345678901234567\
+                    890123456789012345678901234\
+                    56789012345678901234567890";
+        let padded = little_endian_padd(msg);
+        let parsed = little_endian_pars(padded);
+        let result = md5(&parsed);
+
+        let expected = [
+            0x57edf4a2, 0x2be3c955, 0xac49da2e, 0x2107b67a
+        ];
+
+        assert_eq!((expected), (result));
+    }
 }
