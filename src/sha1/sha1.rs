@@ -1,4 +1,4 @@
-use crate::utils::{ rotl };
+use crate::utils::{ rotl, z };
 use crate::sha1::{ k, f };
 
 // Compression function.
@@ -19,7 +19,7 @@ fn sha1(msg: &[[u32; 80]]) -> [u32; 5] {
         let mut e = h4;
 
         for t in 0..80 {
-            let mut temp = rotl(a, 5).wrapping_add(f(t, b, c, d)).wrapping_add(e).wrapping_add(k(t)).wrapping_add(m[t as usize]);
+            let mut temp = z(z(z(z(rotl(a, 5), f(t, b, c, d)), e), k(t)), m[t as usize]);
             e = d;
             d = c;
             c = rotl(b, 30);
@@ -27,11 +27,11 @@ fn sha1(msg: &[[u32; 80]]) -> [u32; 5] {
             a = temp;
         };
 
-        h0 = a.wrapping_add(h0);
-        h1 = b.wrapping_add(h1);
-        h2 = c.wrapping_add(h2);
-        h3 = d.wrapping_add(h3);
-        h4 = e.wrapping_add(h4);
+        h0 = z(a, h0);
+        h1 = z(b, h1);
+        h2 = z(c, h2);
+        h3 = z(d, h3);
+        h4 = z(e, h4);
 
         digest = [
             h0,
