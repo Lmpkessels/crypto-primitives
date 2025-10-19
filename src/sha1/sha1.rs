@@ -1,0 +1,169 @@
+use crate::utils::{ rotl };
+use crate::sha1::{ k, f };
+
+// Compression function.
+fn sha1(msg: &[[u32; 80]]) -> [u32; 5] {
+    let mut h0: u32 = 0x67452301;
+    let mut h1: u32 = 0xefcdab89;
+    let mut h2: u32 = 0x98badcfe;
+    let mut h3: u32 = 0x10325476;
+    let mut h4: u32 = 0xc3d2e1f0;
+
+    let mut digest: [u32; 5] = [0x0u32; 5];
+
+    for m in msg {
+        let mut a = h0;
+        let mut b = h1;
+        let mut c = h2;
+        let mut d = h3;
+        let mut e = h4;
+
+        for t in 0..80 {
+            let mut temp = rotl(a, 5).wrapping_add(f(t, b, c, d)).wrapping_add(e).wrapping_add(k(t)).wrapping_add(m[t as usize]);
+            e = d;
+            d = c;
+            c = rotl(b, 30);
+            b = a;
+            a = temp;
+        };
+
+        h0 = a.wrapping_add(h0);
+        h1 = b.wrapping_add(h1);
+        h2 = c.wrapping_add(h2);
+        h3 = d.wrapping_add(h3);
+        h4 = e.wrapping_add(h4);
+
+        digest = [
+            h0,
+            h1,
+            h2,
+            h3,
+            h4
+        ]
+    }
+
+    digest
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::padd_pars::{
+        big_endian_padd, big_endian_pars
+    };
+    use crate::sha1::schedule;
+
+    #[test]
+    fn sha1_computes_empty_string() {
+        let msg = b"";
+        let padded = big_endian_padd(msg);
+        let parsed = big_endian_pars(padded);
+        let scheduled = schedule(&parsed);
+        
+        let result = sha1(&scheduled);
+
+        let expected = [
+            0xda39a3ee, 0x5e6b4b0d, 0x3255bfef, 0x95601890, 0xafd80709
+        ];
+
+        assert_eq!((result), (expected));
+    }
+
+    #[test]
+    fn sha1_computes_abc() {
+        let msg = b"abc";
+        let padded = big_endian_padd(msg);
+        let parsed = big_endian_pars(padded);
+        let scheduled = schedule(&parsed);
+        
+        let result = sha1(&scheduled);
+
+        let expected = [
+            0xa9993e36, 0x4706816a, 0xba3e2571, 0x7850c26c, 0x9cd0d89d
+        ];
+
+        assert_eq!((result), (expected));
+    }
+
+    #[test]
+    fn sha1_computes_448bits() {
+        let msg = b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+        let padded = big_endian_padd(msg);
+        let parsed = big_endian_pars(padded);
+        let scheduled = schedule(&parsed);
+        
+        let result = sha1(&scheduled);
+
+        let expected = [
+            0x84983e44, 0x1c3bd26e, 0xbaae4aa1, 0xf95129e5, 0xe54670f1
+        ];
+
+        assert_eq!((result), (expected));
+    }
+
+    #[test]
+    fn sha1_computes_8_000_000bits() {
+        let msg = b"a".repeat(1_000_000);
+        let padded = big_endian_padd(&msg);
+        let parsed = big_endian_pars(padded);
+        let scheduled = schedule(&parsed);
+        
+        let result = sha1(&scheduled);
+
+        let expected = [
+            0x34aa973c, 0xd4c4daa4, 0xf61eeb2b, 0xdbad2731, 0x6534016f
+        ];
+
+        assert_eq!((result), (expected));
+    }
+
+    #[test]
+    fn sha1_computes_896bits() {
+        let msg = b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn\
+                    hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"
+        ;
+        let padded = big_endian_padd(msg);
+        let parsed = big_endian_pars(padded);
+        let scheduled = schedule(&parsed);
+        
+        let result = sha1(&scheduled);
+
+        let expected = [
+            0xa49b2446, 0xa02c645b, 0xf419f995, 0xb6709125, 0x3a04a259
+        ];
+
+        assert_eq!((result), (expected));
+    }
+
+    #[test]
+    fn sha1_computes_brown_fox_over_dog() {
+        let msg = b"The quick brown fox jumps over the lazy dog";
+        let padded = big_endian_padd(msg);
+        let parsed = big_endian_pars(padded);
+        let scheduled = schedule(&parsed);
+        
+        let result = sha1(&scheduled);
+
+        let expected = [
+            0x2fd4e1c6, 0x7a2d28fc, 0xed849ee1, 0xbb76e739, 0x1b93eb12
+        ];
+
+        assert_eq!((result), (expected));
+    }
+
+    #[test]
+    fn sha1_computes_brown_fox_over_cog() {
+        let msg = b"The quick brown fox jumps over the lazy cog";
+        let padded = big_endian_padd(msg);
+        let parsed = big_endian_pars(padded);
+        let scheduled = schedule(&parsed);
+        
+        let result = sha1(&scheduled);
+
+        let expected = [
+            0xde9f2c7f, 0xd25e1b3a, 0xfad3e85a, 0x0bd17d9b, 0x100db4b3
+        ];
+
+        assert_eq!((result), (expected));
+    }
+}
