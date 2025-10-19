@@ -10,6 +10,8 @@ pub fn shr(x: u32, n: u32) -> u32 {
     x >> n
 }
 
+pub fn parity(x: u32, y: u32, z: u32) -> u32 { x ^ y ^ z }
+
 /// Rotate right (ROTR).
 /// 
 /// Rotate x right by n bits within a 32-bit word (wraps bits around).
