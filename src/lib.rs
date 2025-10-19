@@ -1,3 +1,4 @@
+pub mod sha1;
 pub mod sha256;
 pub mod hmac;
 pub mod utils;
