@@ -26,9 +26,11 @@ cargo test
 - ✅ SHA-256 (complete)
 - ✅ RIPEMD-160 (complete)
 - ✅ HMAC (complete)
-- ✅ MD4/MD5 (next)
-- 🚧 SHA-1 (planned)
-- 🧩 SHA-512 (planned)
+- ✅ MD4/MD5 (complete)
+- ✅ SHA-1 (complete)
+- ✅ SHA-512 (complete)
+- 🚧 SHA-512 (adding documentation)
+- 🚧 SHA-3 Keccak
 
 ## Resources
 
