@@ -15,7 +15,7 @@ use crate::sha256::sha256;
 /// A vector of bytes (`Vec<u8>`) representing the normalized key (`K0`).
 pub fn get_right_block_size(k: &[u8]) -> Vec<u8> {
     let mut k0: Vec<u8> = k.to_vec();
-    let mut key_length = k0.len();
+    let key_length = k0.len();
     let block_size = 64;
     
     // k = k0 if key length == block_size.

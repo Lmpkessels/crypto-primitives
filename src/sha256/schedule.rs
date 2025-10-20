@@ -13,7 +13,7 @@ use crate::utils::{z, small_sigma1, small_sigma0};
 ///
 /// # Returns
 /// Scheduled message as vector [u32; 64] for downstream compression.
-pub fn sched(blocks: Vec<[u32; 16]>) -> Vec<[u32; 64]> {
+pub fn schedule(blocks: Vec<[u32; 16]>) -> Vec<[u32; 64]> {
     let mut schedule: Vec<[u32; 64]> = Vec::new();
 
     for block in blocks {
@@ -44,7 +44,7 @@ mod test {
         let msg = b"abc";
         let padding = big_endian_padd(msg);
         let parsing = big_endian_pars(padding);
-        let result = sched(parsing);
+        let result = schedule(parsing);
         let expected_schedule: [u32; 64] = [
             0x61626380, 0x00000000, 0x00000000, 0x00000000,
             0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -75,7 +75,7 @@ mod test {
         let msg = b"abc";
         let padding = big_endian_padd(msg);
         let parsing = big_endian_pars(padding); 
-        let result = sched(parsing.clone());
+        let result = schedule(parsing.clone());
         let mut expected: Vec<[u32; 64]> = Vec::new();
         
         for block in parsing {

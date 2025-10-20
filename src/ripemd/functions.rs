@@ -130,6 +130,7 @@ mod test {
         assert_eq!((expected_fn_5), (result_four));
     }
 
+    #[test]
     fn test_f_reversed() {
         let expected_fn_5 = f5(23, 11, 14);        
         let expected_fn_4 = f4(23, 11, 14);

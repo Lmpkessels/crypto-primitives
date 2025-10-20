@@ -48,7 +48,7 @@ fn md5(m: &[[u32; 16]]) -> [u32; 4] {
         ],
     ];
 
-    let mut round_rotation = [
+    let round_rotation = [
         // Round 1
         [
             7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22

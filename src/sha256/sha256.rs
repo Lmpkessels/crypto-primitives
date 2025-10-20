@@ -3,7 +3,7 @@ use crate::padd_pars::{
 };
 
 use crate::sha256::{
-    sched, compress, to_bytes
+    schedule, compress, to_bytes
 };
 
 /// SHA-256: Pads, parses, schedules, and compresses a message into a 256-bit 
@@ -32,8 +32,8 @@ use crate::sha256::{
 pub fn sha256(msg: &[u8]) -> [u8; 32] {
     let padding = big_endian_padd(msg);
     let parsing = big_endian_pars(padding);
-    let schedules = sched(parsing);
-    let digest = compress(schedules);
+    let scheduled = schedule(parsing);
+    let digest = compress(scheduled);
     let bytes = to_bytes(digest);
 
     bytes

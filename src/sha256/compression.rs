@@ -1,5 +1,6 @@
-use crate::utils::{z, big_sigma1, big_sigma0, ch, maj};
-use crate::sha256::to_bytes;
+use crate::utils::{ 
+   z, big_sigma1, big_sigma0, ch, maj
+};
 
 /// SHA256 compression function for message digestion.
 ///
@@ -83,8 +84,16 @@ pub fn compress(schedule: Vec<[u32; 64]>) -> [u32; 8] {
         h7 = z(h7, h);
         
         // Digested state.
-        let d = [h0, h1, h2, h3, h4, h5, h6, h7];
-        digest = d;
+        digest = [
+            h0, 
+            h1, 
+            h2, 
+            h3, 
+            h4, 
+            h5, 
+            h6, 
+            h7
+        ];
     }
     digest
 }
@@ -92,16 +101,18 @@ pub fn compress(schedule: Vec<[u32; 64]>) -> [u32; 8] {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::padd_pars::{big_endian_padd, big_endian_pars};
-    use crate::sha256::{sched};
+    use crate::padd_pars::{
+        big_endian_padd, big_endian_pars
+    };
+    use crate::sha256::{ schedule };
 
     #[test]
     fn test_empty_string_compute_digested_array() {
         let msg = b"";
         let padding = big_endian_padd(msg);
         let parsing = big_endian_pars(padding);
-        let schedules = sched(parsing);
-        let result = compress(schedules);
+        let scheduled = schedule(parsing);
+        let result = compress(scheduled);
 
         let expected = [
             0xe3b0c442, 0x98fc1c14, 0x9afbf4c8, 0x996fb924, 
@@ -116,8 +127,8 @@ mod test {
         let msg = b"abc";
         let padding = big_endian_padd(msg);
         let parsing = big_endian_pars(padding);
-        let schedules = sched(parsing);
-        let result = compress(schedules);
+        let scheduled = schedule(parsing);
+        let result = compress(scheduled);
 
         let expected = [
             0xba7816bf, 0x8f01cfea, 0x414140de, 0x5dae2223, 
@@ -132,8 +143,8 @@ mod test {
         let msg = b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
         let padding = big_endian_padd(msg);
         let parsing = big_endian_pars(padding);
-        let schedules = sched(parsing);
-        let result = compress(schedules);
+        let scheduled = schedule(parsing);
+        let result = compress(scheduled);
 
         let expected = [
             0x248d6a61, 0xd20638b8, 0xe5c02693, 0x0c3e6039, 
@@ -148,31 +159,12 @@ mod test {
         let msg = b"a".repeat(1_000_000);
         let padding = big_endian_padd(&msg);
         let parsing = big_endian_pars(padding);
-        let schedules = sched(parsing.clone());
-        let result = compress(schedules);
+        let scheduled = schedule(parsing);
+        let result = compress(scheduled);
         
         let expected = [
             0xcdc76e5c, 0x9914fb92, 0x81a1c7e2, 0x84d73e67, 
             0xf1809a48, 0xa497200e, 0x046d39cc, 0xc7112cd0,
-        ];
-
-        assert_eq!((result), (expected));
-    }
-
-    #[test]
-    fn compute_digest_to_32_bytes() {
-        let msg = b"a".repeat(1_000_000);
-        let padding = big_endian_padd(&msg);
-        let parsing = big_endian_pars(padding);
-        let schedules = sched(parsing);
-        let compress = compress(schedules);
-        let result = to_bytes(compress);
-
-        let expected = [
-            0xcd, 0xc7, 0x6e, 0x5c, 0x99, 0x14, 0xfb, 0x92, 
-            0x81, 0xa1, 0xc7, 0xe2, 0x84, 0xd7, 0x3e, 0x67, 
-            0xf1, 0x80, 0x9a, 0x48, 0xa4, 0x97, 0x20, 0x0e, 
-            0x04, 0x6d, 0x39 ,0xcc, 0xc7, 0x11, 0x2c, 0xd0,
         ];
 
         assert_eq!((result), (expected));

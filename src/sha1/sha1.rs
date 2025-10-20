@@ -37,12 +37,24 @@ fn sha1(msg: &[[u32; 80]]) -> [u32; 5] {
 
         // Implement round operations.
         for t in 0..80 {
-            let mut temp = z(z(z(z(rotl(a, 5), f(t, b, c, d)), e), k(t)), m[t as usize]);
+
+            let temp = z(
+                z(
+                    z(
+                        z(
+                            rotl(a, 5), 
+                            f(t, b, c, d)), 
+                        e), 
+                    k(t)), 
+                m[t as usize]
+            );
+
             e = d;
             d = c;
             c = rotl(b, 30);
             b = a;
             a = temp;
+
         };
 
         // Compute the i-th intermediate hash value.
@@ -59,7 +71,7 @@ fn sha1(msg: &[[u32; 80]]) -> [u32; 5] {
             h2,
             h3,
             h4
-        ]
+        ];
     }
 
     digest
