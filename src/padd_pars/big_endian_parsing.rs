@@ -7,7 +7,6 @@
 ///
 /// # Returns
 /// A `Vec<[u32; 16]>`, where each element is one 512-bit block.
-//TODO: Change name to BIG-ENDIAN-PARS.
 pub fn big_endian_pars(bytes: Vec<u8>) -> Vec<[u32; 16]> {
     
     let mut words: Vec<u32> = Vec::new();
@@ -46,54 +45,21 @@ pub fn big_endian_pars(bytes: Vec<u8>) -> Vec<[u32; 16]> {
     blocks
 }
 
-pub fn little_endian_pars(bytes: Vec<u8>) -> Vec<[u32; 16]> {
-    let mut words: Vec<u32> = Vec::new();
-    let mut j = 0;
-    while j < bytes.len() {
-        let b0 = bytes[j] as u32;
-        let b1 = bytes[j + 1] as u32;
-        let b2 = bytes[j + 2] as u32;
-        let b3 = bytes[j + 3] as u32;
-
-        let word = (b0) | (b1 << 8) | (b2 << 16) | (b3 << 24);
-
-        words.push(word);
-
-        j += 4;
-    } 
-
-    let mut blocks: Vec<[u32; 16]> = Vec::new();
-    let mut k = 0;
-    while k < words.len() {
-        let mut block = [0u32; 16];
-        let mut l = 0;
-        while l < 16 {
-            block[l] = words[k + l];
-            
-            l += 1
-        }
-        blocks.push(block); 
-        k += 16;
-    }
-
-    blocks
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::padd_pars::{little_endian_padd, big_endian_padd};
+    use crate::padd_pars::{ big_endian_padd };
 
     #[test] 
     fn pads_message_to_16_32_bit_words() {
-        let bytes = little_endian_padd(b"abc"); 
-        let result = little_endian_pars(bytes); 
+        let bytes = big_endian_padd(b"abc"); 
+        let result = big_endian_pars(bytes); 
 
         let expected_block: [u32; 16] = [
-            0x80636261, 0x00000000, 0x00000000, 0x00000000,
+            0x61626380, 0x00000000, 0x00000000, 0x00000000,
             0x00000000, 0x00000000, 0x00000000, 0x00000000,
             0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000018, 0x00000000
+            0x00000000, 0x00000000, 0x00000000, 0x00000018
         ];
         let expected: Vec<[u32; 16]> = vec![expected_block];
 
@@ -126,14 +92,14 @@ mod test {
 
     #[test] 
     fn small_endian_pars_test() {
-        let bytes = little_endian_padd(b"abc"); 
-        let result = little_endian_pars(bytes); 
+        let bytes = big_endian_padd(b"abc"); 
+        let result = big_endian_pars(bytes); 
 
         let expected_block: [u32; 16] = [
-            0x80636261, 0x00000000, 0x00000000, 0x00000000,
+            0x61626380, 0x00000000, 0x00000000, 0x00000000,
             0x00000000, 0x00000000, 0x00000000, 0x00000000,
             0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000018, 0x00000000
+            0x00000000, 0x00000000, 0x00000000, 0x00000018
         ];
         let expected: Vec<[u32; 16]> = vec![expected_block];
 
