@@ -9,7 +9,7 @@ use crate::utils::rotl;
 /// # Description
 /// - Copies each 16 32-bit word block into m[0..16].
 /// - Expands words 16..80 using ROTL.
-/// - Produces a full 79 32-bit word schedule for each block.
+/// - Produces a full 80 32-bit word schedule for each block.
 ///
 /// # Returns
 /// Scheduled message as vector [u32; 80] for downstream compression.
