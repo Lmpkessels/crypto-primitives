@@ -1,5 +1,5 @@
 use crate::utils64::{
-    small_sigma0_64, small_sigma1_64
+    small_sigma0_64, small_sigma1_64, z64
 };
 
 /// SHA512 Message schedule.
@@ -25,11 +25,14 @@ pub fn schedule(msg_as_blocks: &[[u64; 16]]) -> Vec<[u64; 80]> {
         }
 
         for t in 16..80 {
-            m[t] = small_sigma1_64(m[t-2])
-                        .wrapping_add(m[t-7])
-                        .wrapping_add(small_sigma0_64(m[t-15])
-                        .wrapping_add(m[t-16]))
-            ;
+            m[t] = z64(
+                z64(
+                    z64(
+                        small_sigma1_64(m[t-2]), 
+                        m[t-7]), 
+                    small_sigma0_64(m[t-15])), 
+                m[t-16]
+            );
         }
 
         w.push(m);

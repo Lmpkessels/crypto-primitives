@@ -1,5 +1,5 @@
 use crate::utils64::{
-    big_sigma0_64, big_sigma1_64, ch64, maj64
+    big_sigma0_64, big_sigma1_64, ch64, maj64, z64
 };
 use crate::sha512::K;
 
@@ -22,6 +22,7 @@ use crate::sha512::K;
 /// Based on the FIPS PUB 180-4 specification:
 /// [FIPS PUB 180-4](https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf)
 fn sha512(msg_blocks: &[[u64; 80]]) -> [u64; 8] {
+    // Hash values.
     let mut h0: u64 = 0x6a09e667f3bcc908;
     let mut h1: u64 = 0xbb67ae8584caa73b;
     let mut h2: u64 = 0x3c6ef372fe94f82b;
@@ -34,6 +35,7 @@ fn sha512(msg_blocks: &[[u64; 80]]) -> [u64; 8] {
     let mut digest = [0u64; 8];
 
     for w in msg_blocks {
+        // Initialized working variables.
         let mut a = h0;
         let mut b = h1;
         let mut c = h2;
@@ -43,9 +45,23 @@ fn sha512(msg_blocks: &[[u64; 80]]) -> [u64; 8] {
         let mut g = h6;
         let mut h = h7;
 
+        // Implement 80 round operations.
         for t in 0..80 {
-            let temp1 = h.wrapping_add(big_sigma1_64(e).wrapping_add(ch64(e, f, g)).wrapping_add(K[t]).wrapping_add(w[t]));
-            let temp2 = big_sigma0_64(a).wrapping_add(maj64(a, b, c));
+
+            let temp1 = z64(
+                z64(
+                    z64(
+                        z64(
+                            h, 
+                            big_sigma1_64(e)), 
+                        ch64(e, f, g)), 
+                    K[t]), 
+                w[t]
+            );
+            let temp2 = z64(
+                big_sigma0_64(a), 
+                maj64(a, b, c)
+            );
             h = g;
             g = f;
             f = e;
@@ -54,17 +70,20 @@ fn sha512(msg_blocks: &[[u64; 80]]) -> [u64; 8] {
             c = b;
             b = a;
             a = temp1.wrapping_add(temp2);
+
         }
 
-        h0 = a.wrapping_add(h0);
-        h1 = b.wrapping_add(h1);
-        h2 = c.wrapping_add(h2);
-        h3 = d.wrapping_add(h3);
-        h4 = e.wrapping_add(h4);
-        h5 = f.wrapping_add(h5);
-        h6 = g.wrapping_add(h6);
-        h7 = h.wrapping_add(h7);
+        // Compute the i-th intermediate hash value H(i).
+        h0 = z64(a, h0);
+        h1 = z64(b, h1);
+        h2 = z64(c, h2);
+        h3 = z64(d, h3);
+        h4 = z64(e, h4);
+        h5 = z64(f, h5);
+        h6 = z64(g, h6);
+        h7 = z64(h, h7);
 
+        // Digested state.
         digest = [
             h0,
             h1,
