@@ -29,7 +29,6 @@ cargo test
 - ✅ MD4/MD5 (complete)
 - ✅ SHA-1 (complete)
 - ✅ SHA-512 (complete)
-- 🚧 SHA-512 (adding documentation)
 - 🚧 SHA-3 Keccak
 
 ## Resources
