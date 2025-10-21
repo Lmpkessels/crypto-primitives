@@ -17,20 +17,20 @@ cd cryptographic-algos
 cargo test
 ```
 
-**cargo test** will run all unit tests across **SHA-256, HMAC, RIPE-MD160**, and **future crypto Algorithms**.
+**cargo test** will run all unit tests across **SHA-256, HMAC, RIPEMD-160**, and all other **Cryptographic Algorithms**.
 
 ## Current progress
 
-- ✅ Little endian padding/parsing (complete)
-- ✅ Big endian padding/parsing (complete)
-- ✅ SHA-1 (complete)
-- ✅ SHA-256 (complete)
-- ✅ SHA-512 (complete)
-- ✅ HMAC (complete)
-- ✅ RIPEMD-160 (complete)
-- ✅ MD4 (complete)
-- ✅ MD5 (complete)
-- 🚧 SHA-3 Keccak
+- ✅ Little endian padding/parsing
+- ✅ Big endian padding/parsing
+- ✅ SHA-1
+- ✅ SHA-256
+- ✅ SHA-512
+- ✅ HMAC
+- ✅ RIPEMD-160
+- ✅ MD4
+- ✅ MD5
+- 🚧 SHA-3 Keccak (in progress)
 
 ## Resources
 
