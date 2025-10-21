@@ -3,6 +3,24 @@ use crate::utils64::{
 };
 use crate::sha512::K;
 
+/// SHA512 Message Digestion Algorithm.
+///
+/// # Argument
+/// Takes scheduled message as Vec<[u64; 80]>, then compression starts.
+///
+/// # Description
+/// - Initialize (a, b, c, d, e, f, g, h), with the 8 working variables: 
+///   (h0, h1, h2, h3, h4, h5, h6, h7).
+/// - Implement all round operations (Big sigma 0 & 1, Small sigma 0 & 1,
+///   Ch, Maj).
+/// - Compute the i-th intermediate hash value H(i)
+///
+/// # Returns
+/// Final 8-word digest as [u64; 8] (512 bits).
+///
+/// # Reference
+/// Based on the FIPS PUB 180-4 specification:
+/// [FIPS PUB 180-4](https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.180-4.pdf)
 fn sha512(msg_blocks: &[[u64; 80]]) -> [u64; 8] {
     let mut h0: u64 = 0x6a09e667f3bcc908;
     let mut h1: u64 = 0xbb67ae8584caa73b;
