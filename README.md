@@ -21,21 +21,26 @@ cargo test
 
 ## Current progress
 
-- ✅ Big endian padding/parsing (complete)
 - ✅ Little endian padding/parsing (complete)
-- ✅ SHA-256 (complete)
-- ✅ RIPEMD-160 (complete)
-- ✅ HMAC (complete)
-- ✅ MD4/MD5 (complete)
+- ✅ Big endian padding/parsing (complete)
 - ✅ SHA-1 (complete)
+- ✅ SHA-256 (complete)
 - ✅ SHA-512 (complete)
+- ✅ HMAC (complete)
+- ✅ RIPEMD-160 (complete)
+- ✅ MD4 (complete)
+- ✅ MD5 (complete)
 - 🚧 SHA-3 Keccak
 
 ## Resources
 
 - [Big/Little Endianness](https://en.wikipedia.org/wiki/Endianness)
+- [SHA-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)
 - [SHA-256](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)
+- [SHA-512](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)
 - [HMAC](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf)
+- [MD4](https://scispace.com/pdf/md4-message-digest-algorithm-2u2nj7xwlq.pdf)
+- [MD5](https://staff.emu.edu.tr/alexanderchefranov/Documents/CMPE412/MD5%20Message%20Digest%20Algorithm%20260220218.pdf)
 - [RIPEMD-160](https://homes.esat.kuleuven.be/~bosselae/ripemd160/pdf/AB-9601/AB-9601.pdf)
 
 ## Contribution
