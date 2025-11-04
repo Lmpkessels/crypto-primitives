@@ -32,8 +32,6 @@ fn sha512(msg_blocks: &[[u64; 80]]) -> [u64; 8] {
     let mut h6: u64 = 0x1f83d9abfb41bd6b;
     let mut h7: u64 = 0x5be0cd19137e2179;
 
-    let mut digest = [0u64; 8];
-
     for w in msg_blocks {
         // Initialized working variables.
         let mut a = h0;
@@ -83,20 +81,19 @@ fn sha512(msg_blocks: &[[u64; 80]]) -> [u64; 8] {
         h6 = z64(g, h6);
         h7 = z64(h, h7);
 
-        // Digested state.
-        digest = [
-            h0,
-            h1,
-            h2,
-            h3,
-            h4,
-            h5,
-            h6,
-            h7
-        ];
     }
 
-    digest
+    // Digested state.
+    [
+        h0,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        h7
+    ]
 }
 
 #[cfg(test)]

@@ -54,8 +54,6 @@ fn md4(m: &[[u32; 16]]) -> [u32; 4] {
             3, 9, 11, 15, 3, 9, 11, 15, 3, 9, 11, 15, 3, 9, 11, 15
         ],    
     ];
-            
-    let mut digest = [0u32; 4];
 
     for x in m {
         // Buffer: (A, B, C, D) safed as lower: (a, b, c, d) instead of:
@@ -104,15 +102,15 @@ fn md4(m: &[[u32; 16]]) -> [u32; 4] {
         four_word_bffr[2] = z(four_word_bffr[2], c);
         four_word_bffr[3] = z(four_word_bffr[3], d);
 
-        // Order digested message.
-        digest = [
-            four_word_bffr[0].swap_bytes(), 
-            four_word_bffr[1].swap_bytes(), 
-            four_word_bffr[2].swap_bytes(), 
-            four_word_bffr[3].swap_bytes()
-        ];
     }
-    digest
+
+    // Digested state.
+    [
+        four_word_bffr[0].swap_bytes(), 
+        four_word_bffr[1].swap_bytes(), 
+        four_word_bffr[2].swap_bytes(), 
+        four_word_bffr[3].swap_bytes()
+    ]
 }
 
 #[cfg(test)]

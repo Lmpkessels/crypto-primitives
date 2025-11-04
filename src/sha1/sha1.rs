@@ -26,8 +26,6 @@ fn sha1(msg: &[[u32; 80]]) -> [u32; 5] {
     let mut h3: u32 = 0x10325476;
     let mut h4: u32 = 0xc3d2e1f0;
 
-    let mut digest: [u32; 5] = [0x0u32; 5];
-
     for m in msg {
         let mut a = h0;
         let mut b = h1;
@@ -64,17 +62,17 @@ fn sha1(msg: &[[u32; 80]]) -> [u32; 5] {
         h3 = z(d, h3);
         h4 = z(e, h4);
 
-        // Digested state.
-        digest = [
-            h0,
-            h1,
-            h2,
-            h3,
-            h4
-        ];
     }
 
-    digest
+    // Digested state.
+    [
+        h0, 
+        h1, 
+        h2, 
+        h3, 
+        h4
+    ]
+
 }
 
 #[cfg(test)]

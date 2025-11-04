@@ -17,7 +17,6 @@ use crate::utils::{
 /// # Returns
 /// Final 8-word digest as [u32; 8].
 pub fn compress(schedule: Vec<[u32; 64]>) -> [u32; 8] {
-    let mut digest = [0u32; 8];
     // Hash values.
     let mut h0: u32 = 0x6a09e667;
     let mut h1: u32 = 0xbb67ae85;
@@ -82,20 +81,19 @@ pub fn compress(schedule: Vec<[u32; 64]>) -> [u32; 8] {
         h5 = z(h5, f);
         h6 = z(h6, g);
         h7 = z(h7, h);
-        
-        // Digested state.
-        digest = [
-            h0, 
-            h1, 
-            h2, 
-            h3, 
-            h4, 
-            h5, 
-            h6, 
-            h7
-        ];
     }
-    digest
+    
+    // Digested state.
+    [
+        h0, 
+        h1, 
+        h2, 
+        h3, 
+        h4, 
+        h5, 
+        h6, 
+        h7
+    ]
 }
 
 #[cfg(test)]

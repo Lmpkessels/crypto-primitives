@@ -98,9 +98,6 @@ fn md5(m: &[[u32; 16]]) -> [u32; 4] {
         ]
     ];
 
-
-    let mut digest = [0u32; 4];
-
     for x in m {
         let mut a = four_word_bffr[0];
         let mut b = four_word_bffr[1];
@@ -153,15 +150,15 @@ fn md5(m: &[[u32; 16]]) -> [u32; 4] {
         four_word_bffr[2] = z(four_word_bffr[2], c);
         four_word_bffr[3] = z(four_word_bffr[3], d);
 
-        // Order digested message.
-        digest = [
-            four_word_bffr[0].swap_bytes(), 
-            four_word_bffr[1].swap_bytes(), 
-            four_word_bffr[2].swap_bytes(), 
-            four_word_bffr[3].swap_bytes()
-        ];
     }
-    digest
+
+    // Digested state.
+    [
+        four_word_bffr[0].swap_bytes(), 
+        four_word_bffr[1].swap_bytes(), 
+        four_word_bffr[2].swap_bytes(), 
+        four_word_bffr[3].swap_bytes()
+    ]
 }
 
 #[cfg(test)]

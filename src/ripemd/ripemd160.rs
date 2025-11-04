@@ -61,8 +61,6 @@ fn ripemd160(m: Vec<[u32; 16]>) -> [u32; 5] {
         15, 5, 8, 11, 14, 14, 6, 14, 6, 9, 12, 9, 12, 5, 15, 8,
         8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
     ];
-
-    let mut digest = [0u32; 5];
     
     // Initial hexdecimal values.
     let mut h0: u32 = 0x67452301;
@@ -129,6 +127,7 @@ fn ripemd160(m: Vec<[u32; 16]>) -> [u32; 5] {
             right_c = right_b;
             right_b = right_temp;
         }
+
         // Final message digestion.
         let t = z(z(h1, left_c), right_d);
         h1 = z(z(h2, left_d), right_e);
@@ -137,16 +136,16 @@ fn ripemd160(m: Vec<[u32; 16]>) -> [u32; 5] {
         h4 = z(z(h0, left_b), right_c);
         h0 = t;
 
-        // Swap bytes to right order.
-        digest = [
-            h0.swap_bytes(), 
-            h1.swap_bytes(), 
-            h2.swap_bytes(), 
-            h3.swap_bytes(), 
-            h4.swap_bytes()
-        ];
     }
-    digest
+
+    // Digested state.
+    [
+        h0.swap_bytes(), 
+        h1.swap_bytes(), 
+        h2.swap_bytes(), 
+        h3.swap_bytes(), 
+        h4.swap_bytes()
+    ]
 }
 
 #[cfg(test)]
