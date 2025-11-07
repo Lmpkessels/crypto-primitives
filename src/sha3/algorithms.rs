@@ -50,6 +50,19 @@ fn pi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     a_
 }
 
+// Chi
+fn chi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
+    let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
+
+    for x in 0..5 {
+        for y in 0..5 {
+            a_[x][y] = a[x][y] ^ a[(x + 1) % 5][y] & a[(x + 2) % 5][y]; 
+        }
+    }
+
+    a_
+}
+
 fn main() {
     let a = 
     [
@@ -63,15 +76,16 @@ fn main() {
     let test_tata = tata(&a);
     let test_rho = rho(&a);
     let test_pi = pi(&a);
+    let test_chi = chi(&a);
 
     println!("{test_tata:?}\n");
     println!("{test_rho:?}\n");
     println!("{test_pi:?}\n");
+    println!("{test_chi:?}\n");
 }
 
 
 
-// Chi
 
 // Lota
 
