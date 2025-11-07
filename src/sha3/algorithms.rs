@@ -38,7 +38,17 @@ fn rho(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
 }
 
 // Pi
+fn pi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
+    let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
+    
+    for x in 0..5 {
+        for y in 0..5 {
+            a_[x][y] = a[(x + 3 * y) % 5][x];
+        }
+    }
 
+    a_
+}
 
 fn main() {
     let a = 
@@ -51,10 +61,12 @@ fn main() {
     ];
 
     let test_tata = tata(&a);
-    let test_ro = rho(&a);
+    let test_rho = rho(&a);
+    let test_pi = pi(&a);
 
     println!("{test_tata:?}\n");
-    println!("{test_ro:?}");
+    println!("{test_rho:?}\n");
+    println!("{test_pi:?}\n");
 }
 
 
