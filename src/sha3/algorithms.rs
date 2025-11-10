@@ -65,7 +65,7 @@ fn chi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
 }
 
 // Rc: inject unique bit in each round to break symmetry between rounds.
-fn rc(t: u64) -> u8 {
+fn rc_func(t: u64) -> u8 {
     if t % 255 == 0 {
         return 1;
     };
@@ -84,7 +84,7 @@ fn rc(t: u64) -> u8 {
             j += 1;
         }
 
-        let mut fb = nine[8];
+        let fb = nine[8];
 
         nine[0] = nine[0] ^ fb;
         nine[4] = nine[4] ^ fb;
@@ -103,15 +103,46 @@ fn rc(t: u64) -> u8 {
     r[0]
 }
 
-fn main() {
-    let test = rc(255);
+// Lota: to modify the bits of Lane(0, 0) in a manner depending on the round
+// index Ir.
+fn lota(a: &[[u64; 5]; 5], ir: u64) -> [[u64; 5]; 5] {
+    let mut a_: [[u64; 5]; 5] = *a;
 
-    println!("{test:?}");
+    let mut rc: u64 = 0;
+    for j in 0..7 {
+        if rc_func(j + 7 * ir) != 0 {
+            rc ^= 1u64 << ((1 << j) -1);
+        }
+    }
+
+    a_[0][0] ^= rc;
+
+    a_
 }
 
+fn main() {
+    let a = 
+    [
+        [12, 11, 13, 1, 49], 
+        [12, 111, 1, 93, 1], 
+        [71, 121, 9, 11, 1],
+        [9, 00, 1, 1, 1],
+        [12, 1, 48, 2, 21],
+    ];
 
+    let test_tata = tata(&a);
+    let test_rho = rho(&a);
+    let test_pi = pi(&a);
+    let test_chi = chi(&a);
+    let test_rc = rc_func(510);
+    let test_lota = lota(&a, 3);
 
-
-// Lota
+    println!("{test_tata:?}\n");
+    println!("{test_rho:?}\n");
+    println!("{test_pi:?}\n");
+    println!("{test_chi:?}\n");
+    println!("{test_rc:?}\n");
+    println!("{test_lota:?}\n");
+}
 
 // Keccak_f1600
