@@ -1,4 +1,5 @@
-// Tata
+// Tata: XORs each bit in the state with the parities of two columns in the 
+// array.
 fn tata(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     let mut c: [u64; 5] = [0; 5];
     let mut d: [u64; 5] = [0; 5];
@@ -16,7 +17,7 @@ fn tata(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     a_
 }
 
-// Rho
+// Rho: to ofset each lane.
 fn rho(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
     a_[0][0] = a[0][0]; 
@@ -37,7 +38,7 @@ fn rho(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     a_
 }
 
-// Pi
+// Pi: to rearange positions of lanes.
 fn pi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
     
@@ -50,7 +51,7 @@ fn pi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     a_
 }
 
-// Chi
+// Chi: XORs bit-by-bit with non-linear function of two other bits in its row.
 fn chi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
 
@@ -63,25 +64,49 @@ fn chi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     a_
 }
 
+// Rc: inject unique bit in each round to break symmetry between rounds.
+fn rc(t: u64) -> u8 {
+    if t % 255 == 0 {
+        return 1;
+    };
+
+    let mut r: [u8; 8] = [1, 0, 0, 0, 0, 0, 0, 0];
+
+    let mut i = 0;
+    while i < t % 255 {
+        
+        let mut nine: [u8; 9] = [0u8; 9];
+        nine[0] = 0;
+        
+        let mut j = 0;
+        while j < 8 {
+            nine[j + 1] = r[j];
+            j += 1;
+        }
+
+        let mut fb = nine[8];
+
+        nine[0] = nine[0] ^ fb;
+        nine[4] = nine[4] ^ fb;
+        nine[5] = nine[5] ^ fb;
+        nine[6] = nine[6] ^ fb;
+
+        let mut k = 0;
+        while k < 8 {
+            r[k] = nine[k];
+            k += 1; 
+        }
+
+        i += 1;
+    }
+
+    r[0]
+}
+
 fn main() {
-    let a = 
-    [
-        [12, 11, 13, 1, 49], 
-        [12, 111, 1, 93, 1], 
-        [71, 121, 9, 11, 1],
-        [9, 00, 1, 1, 1],
-        [12, 1, 48, 2, 21],
-    ];
+    let test = rc(255);
 
-    let test_tata = tata(&a);
-    let test_rho = rho(&a);
-    let test_pi = pi(&a);
-    let test_chi = chi(&a);
-
-    println!("{test_tata:?}\n");
-    println!("{test_rho:?}\n");
-    println!("{test_pi:?}\n");
-    println!("{test_chi:?}\n");
+    println!("{test:?}");
 }
 
 
