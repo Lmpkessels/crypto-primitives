@@ -1,6 +1,6 @@
 // Tata: XORs each bit in the state with the parities of two columns in the 
 // array.
-fn tata(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
+fn tata_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     let mut c: [u64; 5] = [0; 5];
     let mut d: [u64; 5] = [0; 5];
     let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
@@ -18,7 +18,7 @@ fn tata(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
 }
 
 // Rho: to ofset each lane.
-fn rho(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
+fn rho_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
     a_[0][0] = a[0][0]; 
 
@@ -39,7 +39,7 @@ fn rho(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
 }
 
 // Pi: to rearange positions of lanes.
-fn pi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
+fn pi_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
     
     for x in 0..5 {
@@ -52,7 +52,7 @@ fn pi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
 }
 
 // Chi: XORs bit-by-bit with non-linear function of two other bits in its row.
-fn chi(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
+fn chi_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
 
     for x in 0..5 {
@@ -105,7 +105,7 @@ fn rc_func(t: u64) -> u8 {
 
 // Lota: to modify the bits of Lane(0, 0) in a manner depending on the round
 // index Ir.
-fn lota(a: &[[u64; 5]; 5], ir: u64) -> [[u64; 5]; 5] {
+fn lota_func(a: &[[u64; 5]; 5], ir: u64) -> [[u64; 5]; 5] {
     let mut a_: [[u64; 5]; 5] = *a;
 
     let mut rc: u64 = 0;
@@ -120,6 +120,17 @@ fn lota(a: &[[u64; 5]; 5], ir: u64) -> [[u64; 5]; 5] {
     a_
 }
 
+// RnD: for applying stepmapping to receive a transformed state.
+fn rnd_func(a: &[[u64; 5]; 5], ir: u64) -> [[u64; 5]; 5] {
+    let tata = tata_func(a);
+    let rho = rho_func(&tata);
+    let pi = pi_func(&rho);
+    let shi = chi_func(&pi);
+    let lota = lota_func(&shi, ir);
+
+    lota
+}
+
 fn main() {
     let a = 
     [
@@ -130,12 +141,13 @@ fn main() {
         [12, 1, 48, 2, 21],
     ];
 
-    let test_tata = tata(&a);
-    let test_rho = rho(&a);
-    let test_pi = pi(&a);
-    let test_chi = chi(&a);
+    let test_tata = tata_func(&a);
+    let test_rho = rho_func(&a);
+    let test_pi = pi_func(&a);
+    let test_chi = chi_func(&a);
     let test_rc = rc_func(510);
-    let test_lota = lota(&a, 3);
+    let test_lota = lota_func(&a, 3);
+    let test_rnd = rnd_func(&a, 3);
 
     println!("{test_tata:?}\n");
     println!("{test_rho:?}\n");
@@ -143,6 +155,7 @@ fn main() {
     println!("{test_chi:?}\n");
     println!("{test_rc:?}\n");
     println!("{test_lota:?}\n");
+    println!("{test_rnd:?}\n");
 }
 
 // Keccak_f1600
