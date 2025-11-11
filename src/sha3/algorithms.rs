@@ -1,6 +1,6 @@
 // String to state: convert string (lanes) to array (state).
-fn string_to_state(lanes: &[u64]) -> [[u64; 5]; 5] {
-    let mut a: [[u64; 5]; 5] = [[u64; 5]; 5];
+fn string_to_state(lanes: &[u64; 25]) -> [[u64; 5]; 5] {
+    let mut a: [[u64; 5]; 5] = [[0; 5]; 5];
     let mut i = 0;
 
     for x in 0..5 {
@@ -161,9 +161,15 @@ fn rnd_func(a: &[[u64; 5]; 5], ir: u64) -> [[u64; 5]; 5] {
     lota
 }
 
-fn keccak_p(nb: &[u64], nr: u32) -> 
-
 fn main() {
+    let string = [
+        2323, 222, 254125, 9143, 19348914, 
+        1934482, 1934, 132444, 1212, 21213,
+        2323, 222, 254125, 9143, 19348914, 
+        1934482, 1934, 132444, 1212, 21213,
+        2323, 222, 254125, 9143, 19348914,
+    ];
+
     let a = 
     [
         [12, 11, 13, 1, 49], 
@@ -180,6 +186,8 @@ fn main() {
     let test_rc = rc_func(510);
     let test_lota = lota_func(&a, 3);
     let test_rnd = rnd_func(&a, 3);
+    let str_to_state = string_to_state(&string);
+    let state_to_str = state_to_string(&a);
 
     println!("{test_tata:?}\n");
     println!("{test_rho:?}\n");
@@ -188,6 +196,6 @@ fn main() {
     println!("{test_rc:?}\n");
     println!("{test_lota:?}\n");
     println!("{test_rnd:?}\n");
+    println!("{str_to_state:?}\n");
+    println!("{state_to_str:?}\n");
 }
-
-// Keccak_f1600
