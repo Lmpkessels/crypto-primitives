@@ -1,3 +1,33 @@
+// String to state: convert string (lanes) to array (state).
+fn string_to_state(lanes: &[u64]) -> [[u64; 5]; 5] {
+    let mut a: [[u64; 5]; 5] = [[u64; 5]; 5];
+    let mut i = 0;
+
+    for x in 0..5 {
+        for y in 0..5 {
+            a[x][y] = lanes[i];
+            i += 1;
+        }
+    }
+
+    a
+}
+
+// State to string: convert array (state) to string (lanes).
+fn state_to_string(a: &[[u64; 5]; 5]) -> [u64; 25] {
+    let mut lanes: [u64; 25] = [0; 25];
+    let mut i = 0;
+
+    for x in 0..5 {
+        for y in 0..5 {
+            lanes[i] = a[x][y];
+            i += 1;
+        }
+    }
+
+    lanes
+}
+
 // Tata: XORs each bit in the state with the parities of two columns in the 
 // array.
 fn tata_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
@@ -130,6 +160,8 @@ fn rnd_func(a: &[[u64; 5]; 5], ir: u64) -> [[u64; 5]; 5] {
 
     lota
 }
+
+fn keccak_p(nb: &[u64], nr: u32) -> 
 
 fn main() {
     let a = 
