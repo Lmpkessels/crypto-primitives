@@ -172,6 +172,23 @@ fn keccak_p(lanes: &[u64; 25], rounds: usize) -> [u64; 25] {
     state_to_string(&a)
 }
 
+// Keccak padding: to produce output string of decired length.
+fn keccak_padd(mut v: Vec<u8>, rate: usize) -> Vec<u8> {
+    let rate_bytes = rate / 8;
+
+    // Domain sepperator.
+    v.push(0x06);
+
+    // Pad till end of block with all 0s.
+    while (v.len() % rate_bytes) != rate_bytes - 1 {
+        v.push(0x00);
+    }
+
+    // Final byte, end of message.
+    v.push(0x80);
+
+    v
+}
 
 fn main() {
     let string = [
@@ -191,6 +208,9 @@ fn main() {
         [12, 1, 48, 2, 21],
     ];
 
+    let v = vec![122, 111, 123, 1, 10, 111, 112, 121, 231, 111, 111, 111];
+    let v_as_len = v.len();
+
     let test_tata = theta_func(&a);
     let test_rho = rho_func(&a);
     let test_pi = pi_func(&a);
@@ -201,6 +221,7 @@ fn main() {
     let test_string_to_state = string_to_state(&string);
     let test_state_to_string = state_to_string(&a);
     let test_keccak_p = keccak_p(&string, 2);
+    let test_keccak_padd = keccak_padd(v, v_as_len);
  
     println!("{test_tata:?}\n");
     println!("{test_rho:?}\n");
@@ -212,4 +233,5 @@ fn main() {
     println!("{test_string_to_state:?}\n");
     println!("{test_state_to_string:?}\n");
     println!("{test_keccak_p:?}\n");
+    println!("{test_keccak_padd:?}\n");
 }
