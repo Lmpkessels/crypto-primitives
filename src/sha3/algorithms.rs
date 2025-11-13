@@ -30,7 +30,7 @@ fn state_to_string(a: &[[u64; 5]; 5]) -> [u64; 25] {
 
 // Tata: XORs each bit in the state with the parities of two columns in the 
 // array.
-fn tata_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
+fn theta_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     let mut c: [u64; 5] = [0; 5];
     let mut d: [u64; 5] = [0; 5];
     let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
@@ -74,7 +74,7 @@ fn pi_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     
     for x in 0..5 {
         for y in 0..5 {
-            a_[x][y] = a[(x + 3 * y) % 5][x];
+            a_[x][y] = a[(2 * x + 3 * y) % 5][x];
         }
     }
 
@@ -87,7 +87,7 @@ fn chi_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
 
     for x in 0..5 {
         for y in 0..5 {
-            a_[x][y] = a[x][y] ^ a[(x + 1) % 5][y] & a[(x + 2) % 5][y]; 
+            a_[x][y] = a[x][y] ^ ((!a[(x + 1) % 5][y]) & (a[(x + 2) % 5][y])); 
         }
     }
 
@@ -135,12 +135,12 @@ fn rc_func(t: u64) -> u8 {
 
 // Lota: to modify the bits of Lane(0, 0) in a manner depending on the round
 // index Ir.
-fn lota_func(a: &[[u64; 5]; 5], ir: u64) -> [[u64; 5]; 5] {
+fn iota_func(a: &[[u64; 5]; 5], ir: usize) -> [[u64; 5]; 5] {
     let mut a_: [[u64; 5]; 5] = *a;
+    let mut rc = 0u64;
 
-    let mut rc: u64 = 0;
     for j in 0..7 {
-        if rc_func(j + 7 * ir) != 0 {
+        if rc_func(j as u64 + 7 * ir as u64) != 0 {
             rc ^= 1u64 << ((1 << j) -1);
         }
     }
@@ -151,15 +151,27 @@ fn lota_func(a: &[[u64; 5]; 5], ir: u64) -> [[u64; 5]; 5] {
 }
 
 // RnD: for applying stepmapping to receive a transformed state.
-fn rnd_func(a: &[[u64; 5]; 5], ir: u64) -> [[u64; 5]; 5] {
-    let tata = tata_func(a);
+fn rnd_func(a: &[[u64; 5]; 5], ir: usize) -> [[u64; 5]; 5] {
+    let tata = theta_func(a);
     let rho = rho_func(&tata);
     let pi = pi_func(&rho);
     let shi = chi_func(&pi);
-    let lota = lota_func(&shi, ir);
+    let lota = iota_func(&shi, ir);
 
     lota
 }
+
+// Keccak permution: applied for the given number of rounds.
+fn keccak_p(lanes: &[u64; 25], rounds: usize) -> [u64; 25] {
+    let mut a = string_to_state(lanes);
+
+    for ir in (24 - rounds + 1)..=24 {
+        a = rnd_func(&a, ir);
+    }
+
+    state_to_string(&a)
+}
+
 
 fn main() {
     let string = [
@@ -179,16 +191,17 @@ fn main() {
         [12, 1, 48, 2, 21],
     ];
 
-    let test_tata = tata_func(&a);
+    let test_tata = theta_func(&a);
     let test_rho = rho_func(&a);
     let test_pi = pi_func(&a);
     let test_chi = chi_func(&a);
     let test_rc = rc_func(510);
-    let test_lota = lota_func(&a, 3);
+    let test_lota = iota_func(&a, 3);
     let test_rnd = rnd_func(&a, 3);
-    let str_to_state = string_to_state(&string);
-    let state_to_str = state_to_string(&a);
-
+    let test_string_to_state = string_to_state(&string);
+    let test_state_to_string = state_to_string(&a);
+    let test_keccak_p = keccak_p(&string, 2);
+ 
     println!("{test_tata:?}\n");
     println!("{test_rho:?}\n");
     println!("{test_pi:?}\n");
@@ -196,6 +209,7 @@ fn main() {
     println!("{test_rc:?}\n");
     println!("{test_lota:?}\n");
     println!("{test_rnd:?}\n");
-    println!("{str_to_state:?}\n");
-    println!("{state_to_str:?}\n");
+    println!("{test_string_to_state:?}\n");
+    println!("{test_state_to_string:?}\n");
+    println!("{test_keccak_p:?}\n");
 }
