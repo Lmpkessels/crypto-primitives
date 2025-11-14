@@ -190,6 +190,45 @@ fn keccak_padd(mut v: Vec<u8>, rate: usize) -> Vec<u8> {
     v
 }
 
+// State to lanes: go from state (200 times a byte) to lanes (25 times a 64-bit 
+// word).
+fn state_to_lanes(state: [u8; 200]) -> [u64; 25] {
+    let mut lanes = [0u64; 25];
+    let mut i = 0;
+    
+    while i < 25 {
+        let mut lane = 0u64;
+        let mut j = 0;
+        while j < 8 {
+            lane |= (state[i * 8 + j] as u64) << (8 * j);
+            j += 1;
+        }
+        lanes[i] = lane;
+        i += 1;
+    }
+
+    lanes
+}
+
+// Lanes to state: to go from lanes (25 times a 64-bit word), to lanes (200 
+// times a byte).
+fn lanes_to_state(lanes: &[u64; 25]) -> [u8; 200] {
+    let mut state = [0u8; 200];
+    let mut i = 0;
+
+    while i < 25 {
+        let lane = lanes[i];
+        let mut j = 0;
+        while j < 8 {
+            state[i * 8 + j] = (lane >> (8 * j) & 0xff) as u8;
+            j += 1;
+        }
+        i += 1;
+    }
+
+    state
+}
+
 fn main() {
     let string = [
         2323, 222, 254125, 9143, 19348914, 
@@ -222,6 +261,8 @@ fn main() {
     let test_state_to_string = state_to_string(&a);
     let test_keccak_p = keccak_p(&string, 2);
     let test_keccak_padd = keccak_padd(v, v_as_len);
+    let test_lanes_to_state = lanes_to_state(&string);
+    let test_state_to_lanes = state_to_lanes(test_lanes_to_state);
  
     println!("{test_tata:?}\n");
     println!("{test_rho:?}\n");
@@ -234,4 +275,6 @@ fn main() {
     println!("{test_state_to_string:?}\n");
     println!("{test_keccak_p:?}\n");
     println!("{test_keccak_padd:?}\n");
+    println!("{test_lanes_to_state:?}\n");
+    println!("{test_state_to_lanes:?}\n");
 }
