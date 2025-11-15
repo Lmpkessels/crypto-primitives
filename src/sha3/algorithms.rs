@@ -192,7 +192,7 @@ fn keccak_padd(mut v: Vec<u8>, rate: usize) -> Vec<u8> {
 
 // State to lanes: go from state (200 times a byte) to lanes (25 times a 64-bit 
 // word).
-fn state_to_lanes(state: [u8; 200]) -> [u64; 25] {
+fn state_to_lanes(state: &[u8; 200]) -> [u64; 25] {
     let mut lanes = [0u64; 25];
     let mut i = 0;
     
@@ -229,6 +229,56 @@ fn lanes_to_state(lanes: &[u64; 25]) -> [u8; 200] {
     state
 }
 
+// Sponge construction: to absorb an arbitrary number of input bits into the
+// state function, to afterwards squeeze an arbitrary number of output bits.
+fn sponge(msg: &[u8]) -> Vec<u8> {
+    let rate_in_bits = 1088;
+    let rate_in_bytes = rate_in_bits / 8;
+    let output_length = 32;
+    
+    let mut state = [0u8; 200];
+
+    let mut padded = keccak_padd(msg.to_vec(), rate_in_bits);
+
+    let mut i = 0;
+
+    // Absorb part.
+    while i < padded.len() {
+        let mut j = 0;
+        while j < rate_in_bytes && (i + j) < padded.len() {
+            state[j] ^= padded[i + j];
+            j += 1;
+        }
+
+        let lanes = state_to_lanes(&state);
+        let new_lanes = keccak_p(&lanes, 24);
+        state = lanes_to_state(&new_lanes);
+
+        i += rate_in_bytes;
+    }
+
+    let mut new_msg_string: Vec<u8> = Vec::new();
+
+    // Squeeze part.
+    while new_msg_string.len() < output_length {
+        let mut j = 0;
+        while j < rate_in_bytes && new_msg_string.len() < output_length {
+            new_msg_string.push(state[j]);
+            j += 1;
+        }
+
+        // Truncate.
+        if new_msg_string.len() >= output_length {
+            break;
+        };
+    
+        let lanes = state_to_lanes(&state);
+        let new_lanes = keccak_p(&lanes, 24);
+        state = lanes_to_state(&new_lanes);
+    }
+    new_msg_string
+}
+
 fn main() {
     let string = [
         2323, 222, 254125, 9143, 19348914, 
@@ -250,31 +300,33 @@ fn main() {
     let v = vec![122, 111, 123, 1, 10, 111, 112, 121, 231, 111, 111, 111];
     let v_as_len = v.len();
 
-    let test_tata = theta_func(&a);
+    let test_theta = theta_func(&a);
     let test_rho = rho_func(&a);
     let test_pi = pi_func(&a);
     let test_chi = chi_func(&a);
     let test_rc = rc_func(510);
-    let test_lota = iota_func(&a, 3);
+    let test_iota = iota_func(&a, 3);
     let test_rnd = rnd_func(&a, 3);
     let test_string_to_state = string_to_state(&string);
     let test_state_to_string = state_to_string(&a);
     let test_keccak_p = keccak_p(&string, 2);
     let test_keccak_padd = keccak_padd(v, v_as_len);
     let test_lanes_to_state = lanes_to_state(&string);
-    let test_state_to_lanes = state_to_lanes(test_lanes_to_state);
+    let test_state_to_lanes = state_to_lanes(&test_lanes_to_state);
+    let test_sponge = sponge(b"abc");
  
-    println!("{test_tata:?}\n");
-    println!("{test_rho:?}\n");
-    println!("{test_pi:?}\n");
-    println!("{test_chi:?}\n");
-    println!("{test_rc:?}\n");
-    println!("{test_lota:?}\n");
-    println!("{test_rnd:?}\n");
-    println!("{test_string_to_state:?}\n");
-    println!("{test_state_to_string:?}\n");
-    println!("{test_keccak_p:?}\n");
-    println!("{test_keccak_padd:?}\n");
-    println!("{test_lanes_to_state:?}\n");
-    println!("{test_state_to_lanes:?}\n");
+    println!("Theta: {test_theta:?}\n");
+    println!("Rho: {test_rho:?}\n");
+    println!("Pi: {test_pi:?}\n");
+    println!("Chi: {test_chi:?}\n");
+    println!("Rc: {test_rc:?}\n");
+    println!("Iota: {test_iota:?}\n");
+    println!("Round: {test_rnd:?}\n");
+    println!("String to state: {test_string_to_state:?}\n");
+    println!("State to string: {test_state_to_string:?}\n");
+    println!("Keccak P: {test_keccak_p:?}\n");
+    println!("Keccak padd: {test_keccak_padd:?}\n");
+    println!("Lanes to state: {test_lanes_to_state:?}\n");
+    println!("State to lanes: {test_state_to_lanes:?}\n");
+    println!("Sponge: {test_sponge:?}\n");
 }
