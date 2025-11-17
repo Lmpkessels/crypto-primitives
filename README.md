@@ -38,6 +38,7 @@ cargo test
 - [SHA-1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)
 - [SHA-256](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)
 - [SHA-512](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)
+- [SHA-3-Keccak](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf)
 - [HMAC](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf)
 - [MD4](https://scispace.com/pdf/md4-message-digest-algorithm-2u2nj7xwlq.pdf)
 - [MD5](https://staff.emu.edu.tr/alexanderchefranov/Documents/CMPE412/MD5%20Message%20Digest%20Algorithm%20260220218.pdf)
