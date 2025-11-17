@@ -1,12 +1,10 @@
 // String to state: convert string (lanes) to array (state).
 fn string_to_state(lanes: &[u64; 25]) -> [[u64; 5]; 5] {
-    let mut a: [[u64; 5]; 5] = [[0; 5]; 5];
-    let mut i = 0;
+    let mut a = [[0u64; 5]; 5];
 
     for x in 0..5 {
         for y in 0..5 {
-            a[x][y] = lanes[i];
-            i += 1;
+            a[x][y] = lanes[x + 5 * y];
         }
     }
 
@@ -15,13 +13,11 @@ fn string_to_state(lanes: &[u64; 25]) -> [[u64; 5]; 5] {
 
 // State to string: convert array (state) to string (lanes).
 fn state_to_string(a: &[[u64; 5]; 5]) -> [u64; 25] {
-    let mut lanes: [u64; 25] = [0; 25];
-    let mut i = 0;
+    let mut lanes = [0u64; 25];
 
     for x in 0..5 {
         for y in 0..5 {
-            lanes[i] = a[x][y];
-            i += 1;
+            lanes[x + 5 * y] = a[x][y];
         }
     }
 
@@ -34,16 +30,24 @@ fn theta_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     let mut c: [u64; 5] = [0; 5];
     let mut d: [u64; 5] = [0; 5];
     let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
-    
+
+    // 1. Column parities
     for x in 0..5 {
         c[x] = a[x][0] ^ a[x][1] ^ a[x][2] ^ a[x][3] ^ a[x][4];
-        d[x] = c[(x + 4) % 5] ^ c[(x + 1) % 5].rotate_left(1);
+    }
 
+    // 2. D[x] from neighbors
+    for x in 0..5 {
+        d[x] = c[(x + 4) % 5] ^ c[(x + 1) % 5].rotate_left(1);
+    }
+
+    // 3. Apply to state
+    for x in 0..5 {
         for y in 0..5 {
-            a_[x][y] = a[x][y] ^ d[x]
+            a_[x][y] = a[x][y] ^ d[x];
         }
     }
-    
+
     a_
 }
 
@@ -68,17 +72,19 @@ fn rho_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
     a_
 }
 
-// Pi: to rearange positions of lanes.
+// Pi: rearrange positions of lanes.
 fn pi_func(a: &[[u64; 5]; 5]) -> [[u64; 5]; 5] {
-    let mut a_: [[u64; 5]; 5] = [[0; 5]; 5];
-    
+    let mut out = [[0u64; 5]; 5];
+
     for x in 0..5 {
         for y in 0..5 {
-            a_[x][y] = a[(2 * x + 3 * y) % 5][x];
+            let new_x = y;
+            let new_y = (2 * x + 3 * y) % 5;
+            out[new_x][new_y] = a[x][y];
         }
     }
 
-    a_
+    out
 }
 
 // Chi: XORs bit-by-bit with non-linear function of two other bits in its row.
@@ -165,7 +171,7 @@ fn rnd_func(a: &[[u64; 5]; 5], ir: usize) -> [[u64; 5]; 5] {
 fn keccak_p(lanes: &[u64; 25], rounds: usize) -> [u64; 25] {
     let mut a = string_to_state(lanes);
 
-    for ir in (24 - rounds + 1)..=24 {
+    for ir in 0..rounds {
         a = rnd_func(&a, ir);
     }
 
@@ -194,17 +200,18 @@ fn keccak_padd(mut v: Vec<u8>, rate: usize) -> Vec<u8> {
 // word).
 fn state_to_lanes(state: &[u8; 200]) -> [u64; 25] {
     let mut lanes = [0u64; 25];
-    let mut i = 0;
-    
-    while i < 25 {
-        let mut lane = 0u64;
-        let mut j = 0;
-        while j < 8 {
-            lane |= (state[i * 8 + j] as u64) << (8 * j);
-            j += 1;
+
+    for x in 0..5 {
+        for y in 0..5 {
+            let idx = 5 * y + x;
+            let mut lane = 0u64;
+
+            for j in 0..8 {
+                lane |= (state[idx * 8 + j] as u64) << (8*j);
+            }
+
+            lanes[idx] = lane;
         }
-        lanes[i] = lane;
-        i += 1;
     }
 
     lanes
@@ -214,16 +221,16 @@ fn state_to_lanes(state: &[u8; 200]) -> [u64; 25] {
 // times a byte).
 fn lanes_to_state(lanes: &[u64; 25]) -> [u8; 200] {
     let mut state = [0u8; 200];
-    let mut i = 0;
 
-    while i < 25 {
-        let lane = lanes[i];
-        let mut j = 0;
-        while j < 8 {
-            state[i * 8 + j] = (lane >> (8 * j) & 0xff) as u8;
-            j += 1;
+    for x in 0..5 {
+        for y in 0..5 {
+            let idx = 5 * y + x;
+            let lane = lanes[idx];
+
+            for j in 0..8 {
+                state[idx * 8 + j] = ((lane >> (8 * j)) & 0xFF) as u8;
+            }
         }
-        i += 1;
     }
 
     state
@@ -245,6 +252,7 @@ fn sponge(msg: &[u8]) -> Vec<u8> {
     // Absorb part.
     while i < padded.len() {
         let mut j = 0;
+
         while j < rate_in_bytes && (i + j) < padded.len() {
             state[j] ^= padded[i + j];
             j += 1;
@@ -275,58 +283,69 @@ fn sponge(msg: &[u8]) -> Vec<u8> {
         let lanes = state_to_lanes(&state);
         let new_lanes = keccak_p(&lanes, 24);
         state = lanes_to_state(&new_lanes);
+
     }
     new_msg_string
 }
 
-fn main() {
-    let string = [
-        2323, 222, 254125, 9143, 19348914, 
-        1934482, 1934, 132444, 1212, 21213,
-        2323, 222, 254125, 9143, 19348914, 
-        1934482, 1934, 132444, 1212, 21213,
-        2323, 222, 254125, 9143, 19348914,
-    ];
+fn bytes_to_hex(bytes: &[u8]) -> Vec<u8> {
+    let hex_table = b"0123456789abcdef";
+    let mut out = Vec::with_capacity(bytes.len() * 2);
 
-    let a = 
-    [
-        [12, 11, 13, 1, 49], 
-        [12, 111, 1, 93, 1], 
-        [71, 121, 9, 11, 1],
-        [9, 00, 1, 1, 1],
-        [12, 1, 48, 2, 21],
-    ];
+    let mut i = 0;
+    while i < bytes.len() {
+        let b = bytes[i];
 
-    let v = vec![122, 111, 123, 1, 10, 111, 112, 121, 231, 111, 111, 111];
-    let v_as_len = v.len();
+        // High nibble
+        let hi = (b >> 4) & 0x0f;
+        out.push(hex_table[hi as usize]);
 
-    let test_theta = theta_func(&a);
-    let test_rho = rho_func(&a);
-    let test_pi = pi_func(&a);
-    let test_chi = chi_func(&a);
-    let test_rc = rc_func(510);
-    let test_iota = iota_func(&a, 3);
-    let test_rnd = rnd_func(&a, 3);
-    let test_string_to_state = string_to_state(&string);
-    let test_state_to_string = state_to_string(&a);
-    let test_keccak_p = keccak_p(&string, 2);
-    let test_keccak_padd = keccak_padd(v, v_as_len);
-    let test_lanes_to_state = lanes_to_state(&string);
-    let test_state_to_lanes = state_to_lanes(&test_lanes_to_state);
-    let test_sponge = sponge(b"abc");
- 
-    println!("Theta: {test_theta:?}\n");
-    println!("Rho: {test_rho:?}\n");
-    println!("Pi: {test_pi:?}\n");
-    println!("Chi: {test_chi:?}\n");
-    println!("Rc: {test_rc:?}\n");
-    println!("Iota: {test_iota:?}\n");
-    println!("Round: {test_rnd:?}\n");
-    println!("String to state: {test_string_to_state:?}\n");
-    println!("State to string: {test_state_to_string:?}\n");
-    println!("Keccak P: {test_keccak_p:?}\n");
-    println!("Keccak padd: {test_keccak_padd:?}\n");
-    println!("Lanes to state: {test_lanes_to_state:?}\n");
-    println!("State to lanes: {test_state_to_lanes:?}\n");
-    println!("Sponge: {test_sponge:?}\n");
+        // Low nibble
+        let lo = b & 0x0f;
+        out.push(hex_table[lo as usize]);
+
+        i += 1;
+    }
+
+    out
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_sha3_abc() {
+        let out = sponge(b"abc");
+        let hex = bytes_to_hex(&out);
+        assert_eq!(
+            hex,
+            b"3a985da74fe225b2045c172d6bd390bd\
+              855f086e3e9d525b46bfe24511431532"
+        );
+    }
+
+    #[test]
+    fn test_empty() {
+        let out = sponge(b"");
+        let hex = bytes_to_hex(&out);
+        assert_eq!(
+            hex,
+            b"a7ffc6f8bf1ed76651c14756a061d662\
+              f580ff4de43b49fa82d80a4b80f8434a"
+        );
+    }
+
+    #[test]
+    fn test_one_million_a() {
+        let msg = vec![b'a'; 1_000_000];
+        let out = sponge(&msg);
+        let hex = bytes_to_hex(&out);
+        assert_eq!(
+            hex,
+            b"5c8875ae474a3634ba4fd55ec85bffd6\
+              61f32aca75c6d699d0cdcb6c115891c1"
+        );
+    }
+
 }
