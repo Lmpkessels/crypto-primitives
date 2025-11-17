@@ -288,6 +288,7 @@ fn sponge(msg: &[u8]) -> Vec<u8> {
     new_msg_string
 }
 
+// Bytes to hex: goes from message received in bytes to hexdecimal output.
 fn bytes_to_hex(bytes: &[u8]) -> Vec<u8> {
     let hex_table = b"0123456789abcdef";
     let mut out = Vec::with_capacity(bytes.len() * 2);
