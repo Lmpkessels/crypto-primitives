@@ -30,7 +30,7 @@ cargo test
 - ✅ RIPEMD-160
 - ✅ MD4
 - ✅ MD5
-- 🚧 SHA-3 Keccak (in progress)
+- ✅ SHA-3 Keccak
 
 ## Resources
 
