@@ -7,6 +7,22 @@ fn xtimes(byte: u8) -> u8 {
     }
 }
 
+// Galois field multiplication.
+fn gf_mul(mut a: u8, mut b: u8) -> u8 {
+    let mut result = 0;
+
+    while b != 0 {
+        if b & 1 != 0 {
+            result ^= a;
+        }
+
+        a = xtimes(a);
+        b >>= 1;
+    }
+
+    result
+}
+
 fn main() {
     let msb_is_1 = xtimes(128);
     println!("MSB is 1: {}", msb_is_1);
@@ -14,5 +30,5 @@ fn main() {
     let msb_is_0 = xtimes(0);
     println!("MSB is 0: {}", msb_is_0);
 
-    println!("{}", 0xaf & 0x80);
+    println!("Galois Field Multiplication: {}", gf_mul(18, 19));
 }
