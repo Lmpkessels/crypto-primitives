@@ -6,14 +6,12 @@ target
 
 # Structured guide
 structure.md
-plan.md
 
 # Thinking
 scratch.rs
 todo.md
 scratch
 scratch.py
-striking-thoughts.md
 
 # Cheatsheet
 github.md
@@ -21,3 +19,6 @@ github.md
 # Lessons from
 pdf
 study_code
+
+# Paused
+src/aes
