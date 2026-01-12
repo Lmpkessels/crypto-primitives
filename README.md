@@ -2,6 +2,7 @@
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Built with Rust](https://img.shields.io/badge/Built%20with-Rust-red.svg)
+![Status: Slowed down](https://img.shields.io/badge/Status-Slowed%20down-orange.svg)
 
 **Cryptographic Algorithms** is a Rust repository focused on implementing cryptographic algorithms from first principles.
 
@@ -31,6 +32,7 @@ cargo test
 - ✅ MD4
 - ✅ MD5
 - ✅ SHA-3 Keccak
+- ⏸️ AES
 
 ## Resources
 
@@ -51,11 +53,7 @@ For major changes, please open an issue first to discuss what you’d like to im
 
 ## Status
 
-This repository is an ongoing learning project to deepen my understanding of:
-
-- Cryptographic algorithm design
-- Low-level systems building
-- Secure Rust programming
+This project is currently in maintenance mode, but I may expand on AES and add new algorithms in the future.
 
 ## License
 
